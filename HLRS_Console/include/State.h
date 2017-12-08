@@ -1,6 +1,9 @@
 #ifndef STATE_H
 #define STATE_H
 
+#include "CoffeeMachine.h"
+
+#include "StateEngine.h"
 
 class State
 {
@@ -10,13 +13,15 @@ class State
 
         virtual void entry();
         virtual void exit();
-        virtual void during();
+
+        virtual char* toString();
 
         void setTimeout(int millis, void (*timeout)());
 
         virtual void powerButtonPressed();
 
     protected:
+        CoffeeMachine *coffeeMachine;
 
     private:
 };

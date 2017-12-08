@@ -1,9 +1,11 @@
 #include <iostream>
 
-using namespace std;
+#include "StateEngine.h"
+#include "StandbyState.h"
+#include "src/StandbyState.cpp"
+#include "State.h"
 
 int main()
 {
-    cout << "Hello world!" << endl;
-    return 0;
+    StateEngine::init(new StandbyState());
 }

@@ -2,3 +2,48 @@
 1446667744 source:c:\git-repositories\design\hlrs_console\main.cpp
 	<iostream>
 
+1512768845 source:d:\dokumente\schule\hlrs\code\repo\design\hlrs_console\main.cpp
+	<iostream>
+	"StateEngine.h"
+	"StandbyState.h"
+	"State.h"
+
+1512765315 source:d:\dokumente\schule\hlrs\code\repo\design\hlrs_console\src\bootingstate.cpp
+	"BootingState.h"
+
+1512765289 d:\dokumente\schule\hlrs\code\repo\design\hlrs_console\include\bootingstate.h
+	"State.h"
+
+1512769047 d:\dokumente\schule\hlrs\code\repo\design\hlrs_console\include\state.h
+	"CoffeeMachine.h"
+	"StateEngine.h"
+
+1512768789 d:\dokumente\schule\hlrs\code\repo\design\hlrs_console\include\stateengine.h
+	"State.h"
+	<iostream>
+
+1512765278 source:d:\dokumente\schule\hlrs\code\repo\design\hlrs_console\src\coffeemachine.cpp
+	<iostream>
+	"CoffeeMachine.h"
+
+1512765283 d:\dokumente\schule\hlrs\code\repo\design\hlrs_console\include\coffeemachine.h
+
+1512765446 source:d:\dokumente\schule\hlrs\code\repo\design\hlrs_console\src\standby_state.cpp
+	"Standby_State.h"
+	"BootingState.h"
+
+1512765951 d:\dokumente\schule\hlrs\code\repo\design\hlrs_console\include\standby_state.h
+	"State.h"
+	"BootingState.h"
+
+1512769137 source:d:\dokumente\schule\hlrs\code\repo\design\hlrs_console\src\state.cpp
+	"State.h"
+
+1512768993 d:\dokumente\schule\hlrs\code\repo\design\hlrs_console\include\standbystate.h
+	"State.h"
+	"BootingState.h"
+
+1512769325 source:d:\dokumente\schule\hlrs\code\repo\design\hlrs_console\src\stateengine.cpp
+	"StateEngine.h"
+	<iostream>
+

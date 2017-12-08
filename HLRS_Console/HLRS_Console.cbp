@@ -34,9 +34,17 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="include/BootingState.h" />
+		<Unit filename="include/CoffeeMachine.h" />
+		<Unit filename="include/Standby_State.h" />
 		<Unit filename="include/State.h" />
+		<Unit filename="include/StateEngine.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="src/BootingState.cpp" />
+		<Unit filename="src/CoffeeMachine.cpp" />
+		<Unit filename="src/Standby_State.cpp" />
 		<Unit filename="src/State.cpp" />
+		<Unit filename="src/StateEngine.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
