@@ -13,7 +13,6 @@ class StateEngine
         void changeState(State *newState);
         static void init(State *startState);
         static StateEngine* getInstance();
-
     protected:
 
     private:
@@ -21,6 +20,8 @@ class StateEngine
         State *currentState;
         static StateEngine *instance;
         static bool isInited;
+        void start();
 };
+
 
 #endif // STATEENGINE_H

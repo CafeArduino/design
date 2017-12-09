@@ -2,28 +2,32 @@
 #include<iostream>
 
 
-bool StateEngine::isInited = false;
-StateEngine* StateEngine::instance = 0;
 
 StateEngine::StateEngine(State* startState): currentState(startState)
 {
 }
 
 void StateEngine::init(State* startState) {
-    instance = new StateEngine(startState);
     isInited = true;
+    instance = new StateEngine(startState);
+    instance->start();
 }
 
 StateEngine* StateEngine::getInstance() {
-    if(!isInited) throw "state_enigine_not_inited";
+    if(!isInited) {throw "state_engine_not_inited";}
 
     return instance;
 }
 
 void StateEngine::changeState(State *newState) {
     currentState->exit();
-    delete currentState;
+    //delete currentState;
+    std::cout<<"Changing to: " << newState->toString()<<"\n";
     currentState = newState;
     currentState->entry();
-    std::cout<<"Changing to: " << newState->toString();
+}
+
+void StateEngine::start() {
+    std::cout<<"Changing to: " << currentState->toString()<<"\n";
+    currentState->entry();
 }

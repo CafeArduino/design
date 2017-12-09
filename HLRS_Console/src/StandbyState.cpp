@@ -12,7 +12,10 @@ void StandbyState::powerButtonPressed() {
 
 void StandbyState::entry() {
     Sleep(2000);
+    powerButtonPressed();
 }
+
+void StandbyState::exit() {}
 
 char* StandbyState::toString() {
     return "Standby_State";
