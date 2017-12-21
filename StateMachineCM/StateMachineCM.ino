@@ -19,23 +19,24 @@
 #define CM_COFFEE 5
 #define CANCEL_BUTTON 6
 #define AUTHENTICATED_BUTTON 7
-#define MAINTENANCE_BUTTON 8
-#define MAINTENANCE_LED 9
+#define MAINTENANCE_SENSOR 8
+#define STANDBY_SENSOR 9
 
 //Events
 #define PW_EVENT 0
 #define AI_EVENT 1
 #define COB_EVENT 2
 #define CAB_EVENT 3
-#define MS_t_EVENT 4
-#define MS_f_EVENT 5
+
+bool standby_sensor_state = false;
+bool maintenance_sensor_state = false;
 
 State state_standby(NULL, NULL, NULL);
 State state_booting(&booting_entry, NULL, NULL);
 State state_ready(NULL, NULL, NULL);
 State state_authenticated(NULL, NULL, NULL);
 State state_brewing(&brewing_entry, NULL, NULL);
-State state_needs_maintenance(&needs_maintenance_entry, NULL, &needs_maintenance_exit);
+State state_needs_maintenance(NULL, NULL, NULL);
 
 Fsm fsm(&state_standby);
 
@@ -56,13 +57,7 @@ void brewing_entry() {
   digitalWrite(CM_COFFEE, LOW);  
 }
 
-void needs_maintenance_entry() {
- digitalWrite(MAINTENANCE_LED, HIGH);
-}
-
-void needs_maintenance_exit() {
- digitalWrite(MAINTENANCE_LED, LOW);
-}
+void 
 
 //---------------------------------------------------------------------------------------------------
 //interrupt functions
@@ -87,19 +82,13 @@ void cancelButtonPressed() {
   fsm.trigger(CAB_EVENT); 
 }
 
-bool msSensorState = false;
-void maintenanceInput() {
-  msSensorState = !msSensorState;
-  if(msSensorState) {
-    msSensorState = 0;
-    Serial.println("MS_t_EVENT triggered");
-    fsm.trigger(MS_t_EVENT);
-  } else {
-    Serial.println("MS_f_EVENT triggered");
-    fsm.trigger(MS_f_EVENT);
-  }
+void maintenanceSensorInput() {
+  maintenance_sensor_state = !maintenance_sensor_state;
 }
 
+void standbySensorInput() {
+  standby_sensor_state = !standby_sensor_state;
+}
 //---------------------------------------------------------------------------------------------------------------
 //arduino functions
 void setup() {
@@ -112,15 +101,15 @@ void setup() {
   //von standby
   fsm.add_transition(&state_standby, &state_booting, PW_EVENT, NULL);
   //von booting
-  fsm.add_timed_transition(&state_booting, &state_ready, BOOTING_COMPLETED_TIME, NULL);
+  fsm.add_transition(&state_booting, &state_ready, SS_f_EVENT, NULL);
   //von ready
-  fsm.add_timed_transition(&state_ready, &state_standby, GOTO_STANDBY_TIME, NULL);
+  fsm.add_transition(&state_ready, &state_standby, SS_t_EVENT, NULL);
   fsm.add_transition(&state_ready, &state_standby, PW_EVENT, NULL);
   fsm.add_transition(&state_ready, &state_needs_maintenance, MS_t_EVENT, NULL);
   fsm.add_transition(&state_ready, &state_authenticated, AI_EVENT, NULL);
   //von authenticated
   fsm.add_transition(&state_authenticated, &state_standby, PW_EVENT, NULL);
-  fsm.add_timed_transition(&state_authenticated, &state_standby, GOTO_STANDBY_TIME, NULL);
+  fsm.add_transition(&state_authenticated, &state_standby, SS_t_EVENT, NULL);
   fsm.add_transition(&state_authenticated, &state_ready, CAB_EVENT, NULL);
   fsm.add_transition(&state_authenticated, &state_brewing, COB_EVENT, NULL);
   fsm.add_transition(&state_authenticated, &state_needs_maintenance, MS_t_EVENT, NULL);
@@ -130,16 +119,27 @@ void setup() {
   //von needs_maintenance
   fsm.add_transition(&state_needs_maintenance, &state_ready, MS_f_EVENT, NULL);
   fsm.add_transition(&state_needs_maintenance, &state_standby, PW_EVENT, NULL);
-  fsm.add_timed_transition(&state_needs_maintenance, &state_standby, GOTO_STANDBY_TIME, NULL);
+  fsm.add_transition(&state_needs_maintenance, &state_standby, SS_t_EVENT, NULL);
 
-
+  //Pins
+  pinMode(POWER_BUTTON, INPUT_PULLUP);
+  pinMode(CM_POWER, OUTPUT);
+  pinMode(COFFEE_BUTTON, INPUT_PULLUP);
+  pinMode(CM_COFFEE, OUTPUT);
+  pinMode(CANCEL_BUTTON, INPUT_PULLUP);
+  pinMode(AUTHENTICATED_BUTTON, INPUT_PULLUP);
+  pinMode(MAINTENANCE_SENSOR, INPUT);
+  pinMode(STANDBY_SENSOR, INPUT);
 
   //interrupts
   attachPCINT(digitalPinToPCINT(POWER_BUTTON), powerButtonPressed, FALLING);
   attachPCINT(digitalPinToPCINT(AUTHENTICATED_BUTTON), userAuthenticated, FALLING);
   attachPCINT(digitalPinToPCINT(COFFEE_BUTTON), coffeeButtonPressed, FALLING);
   attachPCINT(digitalPinToPCINT(CANCEL_BUTTON), cancelButtonPressed, FALLING);
-  attachPCINT(digitalPinToPCINT(MAINTENANCE_BUTTON), maintenanceInput, FALLING);
+  attachPCINT(digitalPinToPCINT(MAINTENANCE_SENSOR), maintenanceSensorFalse, FALLING);
+  attachPCINT(digitalPinToPCINT(MAINTENANCE_SENSOR), maintenanceSensorTrue, RISING);
+  attachPCINT(digitalPinToPCINT(STANDBY_SENSOR), standbySensorFalse, FALLING);
+  attachPCINT(digitalPinToPCINT(STANDBY_SENSOR), standbySensorTrue, RISING);
 }
 
 void loop() {
