@@ -16,10 +16,11 @@
 #include "Fsm.h"
 
 
-State::State(void (*on_enter)(), void (*on_state)(), void (*on_exit)())
+State::State(String name, void (*on_enter)(), void (*on_state)(), void (*on_exit)())
 : on_enter(on_enter),
   on_state(on_state),
-  on_exit(on_exit)
+  on_exit(on_exit),
+  name(name)
 {
 }
 
@@ -79,6 +80,27 @@ void Fsm::add_timed_transition(State* state_from, State* state_to,
 }
 
 
+void Fsm::add_condition_transition(State* state_from, State* state_to,
+                               bool* condition, bool cmp_val, void (*on_transition)())
+{
+  if (state_from == NULL || state_to == NULL)
+    return;
+
+  Transition transition = Fsm::create_transition(state_from, state_to, 0,
+                                                 on_transition);
+
+  ConditionTransition condition_transition;
+  condition_transition.transition = transition;
+  condition_transition.condition = condition;
+  condition_transition.cmp_val = cmp_val;
+
+  m_condition_transitions = (ConditionTransition*) realloc(
+      m_condition_transitions, (m_num_condition_transitions + 1) * sizeof(ConditionTransition));
+  m_condition_transitions[m_num_condition_transitions] = condition_transition;
+  m_num_condition_transitions++;
+}
+
+
 Fsm::Transition Fsm::create_transition(State* state_from, State* state_to,
                                        int event, void (*on_transition)())
 {
@@ -131,25 +153,38 @@ void Fsm::check_timed_transitions()
   }
 }
 
+void Fsm::check_condition_transitions() {
+    for (int i = 0; i < m_num_condition_transitions; ++i) {
+        ConditionTransition* transition = &m_condition_transitions[i];
+        if (transition->transition.state_from == m_current_state) {
+            if(*(transition->condition) == transition->cmp_val) {
+                Fsm::make_transition(&(transition->transition));
+            }
+        }
+    }
+}
+
 void Fsm::run_machine()
 {
   // first run must exec first state "on_enter"
   if (!m_initialized)
   {
     m_initialized = true;
-    if (m_current_state->on_enter != NULL)
+    if (m_current_state->on_enter != NULL) {
       m_current_state->on_enter();
+    }
   }
-  
+
   if (m_current_state->on_state != NULL)
     m_current_state->on_state();
-    
+
   Fsm::check_timed_transitions();
+  Fsm::check_condition_transitions();
 }
 
 void Fsm::make_transition(Transition* transition)
 {
- 
+
   // Execute the handlers in the correct order.
   if (transition->state_from->on_exit != NULL)
     transition->state_from->on_exit();
@@ -159,10 +194,13 @@ void Fsm::make_transition(Transition* transition)
 
   if (transition->state_to->on_enter != NULL)
     transition->state_to->on_enter();
-  
-  m_current_state = transition->state_to;
 
-  //Initialice all timed transitions from m_current_state
+  m_current_state = transition->state_to;
+  Serial.println("State change");
+  Serial.print("Current state: ");
+  Serial.println(m_current_state->name);
+
+  //Initialize all timed transitions from m_current_state
   unsigned long now = millis();
   for (int i = 0; i < m_num_timed_transitions; ++i)
   {

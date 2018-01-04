@@ -26,10 +26,11 @@
 
 struct State
 {
-  State(void (*on_enter)(), void (*on_state)(), void (*on_exit)());
+  State(String name, void (*on_enter)(), void (*on_state)(), void (*on_exit)());
   void (*on_enter)();
   void (*on_state)();
   void (*on_exit)();
+  String name;
 };
 
 
@@ -45,7 +46,10 @@ public:
   void add_timed_transition(State* state_from, State* state_to,
                             unsigned long interval, void (*on_transition)());
 
+  void add_condition_transition(State* state_from, State* state_to, bool* condition, bool cmp_val, void (*on_transition) ());
+
   void check_timed_transitions();
+  void check_condition_transitions();
 
   void trigger(int event);
   void run_machine();
@@ -65,6 +69,12 @@ private:
     unsigned long start;
     unsigned long interval;
   };
+  struct ConditionTransition
+  {
+    Transition transition;
+    bool* condition;
+    bool cmp_val;
+  };
 
   static Transition create_transition(State* state_from, State* state_to,
                                       int event, void (*on_transition)());
@@ -78,6 +88,8 @@ private:
 
   TimedTransition* m_timed_transitions;
   int m_num_timed_transitions;
+  ConditionTransition* m_condition_transitions;
+  int m_num_condition_transitions;
   bool m_initialized;
 };
 

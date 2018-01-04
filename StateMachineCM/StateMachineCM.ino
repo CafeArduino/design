@@ -1,16 +1,16 @@
+#include <Fsm.h>
+
 #include <PinChangeInterrupt.h>
 #include <PinChangeInterruptBoards.h>
 #include <PinChangeInterruptPins.h>
 #include <PinChangeInterruptSettings.h>
-
-#include <Fsm.h>
 
 
 //Times
 #define BOOTING_COMPLETED_TIME 5000
 #define GOTO_STANDBY_TIME 10000
 #define CANCEL_AUTHENTICATED_TIME 5000
-#define BREWING_TIME 5000
+#define BREWING_TIME 7000
 
 //Pins
 #define POWER_BUTTON 2
@@ -22,42 +22,49 @@
 #define MAINTENANCE_SENSOR 8
 #define STANDBY_SENSOR 9
 
-//Events
-#define PW_EVENT 0
-#define AI_EVENT 1
-#define COB_EVENT 2
-#define CAB_EVENT 3
+//Events - do not use 0!
+#define PW_EVENT 1
+#define AI_EVENT 2
+#define COB_EVENT 3
+#define CAB_EVENT 4
 
-bool standby_sensor_state = false;
+void booting_entry();
+void brewing_entry();
+
+bool standby_sensor_state = true;
 bool maintenance_sensor_state = false;
 
-State state_standby(NULL, NULL, NULL);
-State state_booting(&booting_entry, NULL, NULL);
-State state_ready(NULL, NULL, NULL);
-State state_authenticated(NULL, NULL, NULL);
-State state_brewing(&brewing_entry, NULL, NULL);
-State state_needs_maintenance(NULL, NULL, NULL);
+State state_standby(String("standby"), NULL, NULL, NULL);
+State state_booting(String("booting"), &booting_entry, NULL, NULL);
+State state_ready(String("ready"), NULL, NULL, NULL);
+State state_authenticated(String("authenticated"), NULL, NULL, NULL);
+State state_brewing(String("brewing"), &brewing_entry, NULL, NULL);
+State state_needs_maintenance(String("needs_maintenance"), NULL, NULL, NULL);
 
 Fsm fsm(&state_standby);
+
+//-----------------------------------------------------------------------------------------------
+struct TimedWrite {
+  unsigned long time;
+  int pin;
+  bool value;
+};
+
+TimedWrite* timed_writes;
+int num_timed_writes = 0;
 
 //-----------------------------------------------------------------------------------------------
 //state functions
 
 void booting_entry() {
   //Trigger coffee machine booting
-  digitalWrite(CM_POWER, HIGH);
-  delay(500);
-  digitalWrite(CM_POWER, LOW);
+  triggerCM(CM_POWER);
 }
 
 void brewing_entry() {
   //Trigger coffee machine brewing
-  digitalWrite(CM_COFFEE, HIGH);
-  delay(500);
-  digitalWrite(CM_COFFEE, LOW);  
+  triggerCM(CM_COFFEE);
 }
-
-void 
 
 //---------------------------------------------------------------------------------------------------
 //interrupt functions
@@ -89,43 +96,63 @@ void maintenanceSensorInput() {
 void standbySensorInput() {
   standby_sensor_state = !standby_sensor_state;
 }
+
+//---------------------------------------------------------------------------------------------------------------
+//util
+void triggerCM(int pin)  {
+  digitalWrite(pin, LOW);
+  addTimedWrite(millis() + 500, pin, HIGH);
+  Serial.print("Triggering pin ");
+  Serial.println(pin);
+}
+
+void addTimedWrite(long time, int pin, bool value) {
+  TimedWrite t_write;
+  t_write.time = time;
+  t_write.pin = pin;
+  t_write.value = value;
+  timed_writes = (TimedWrite*) realloc(timed_writes, (num_timed_writes + 1) * sizeof(TimedWrite));
+  timed_writes[num_timed_writes] = t_write;
+  num_timed_writes++;
+}
 //---------------------------------------------------------------------------------------------------------------
 //arduino functions
 void setup() {
   Serial.begin(9600);
-  pinMode(POWER_BUTTON, INPUT);
-  pinMode(CM_POWER, OUTPUT);
 
   //transitions
 
   //von standby
-  fsm.add_transition(&state_standby, &state_booting, PW_EVENT, NULL);
+    fsm.add_transition(&state_standby, &state_booting, PW_EVENT, NULL);
   //von booting
-  fsm.add_transition(&state_booting, &state_ready, SS_f_EVENT, NULL);
+    //fsm.add_condition_transition(&state_booting, &state_ready, &standby_sensor_state, false, NULL);     //Do not work properly with coffee machine model
+    fsm.add_timed_transition(&state_booting, &state_ready, BOOTING_COMPLETED_TIME, NULL);
   //von ready
-  fsm.add_transition(&state_ready, &state_standby, SS_t_EVENT, NULL);
-  fsm.add_transition(&state_ready, &state_standby, PW_EVENT, NULL);
-  fsm.add_transition(&state_ready, &state_needs_maintenance, MS_t_EVENT, NULL);
-  fsm.add_transition(&state_ready, &state_authenticated, AI_EVENT, NULL);
+    fsm.add_condition_transition(&state_ready, &state_standby, &standby_sensor_state, true, NULL);
+    //fsm.add_transition(&state_ready, &state_standby, PW_EVENT, NULL);
+    fsm.add_condition_transition(&state_ready, &state_needs_maintenance, &maintenance_sensor_state, true, NULL);
+    fsm.add_transition(&state_ready, &state_authenticated, AI_EVENT, NULL);
   //von authenticated
-  fsm.add_transition(&state_authenticated, &state_standby, PW_EVENT, NULL);
-  fsm.add_transition(&state_authenticated, &state_standby, SS_t_EVENT, NULL);
-  fsm.add_transition(&state_authenticated, &state_ready, CAB_EVENT, NULL);
-  fsm.add_transition(&state_authenticated, &state_brewing, COB_EVENT, NULL);
-  fsm.add_transition(&state_authenticated, &state_needs_maintenance, MS_t_EVENT, NULL);
+    //fsm.add_transition(&state_authenticated, &state_standby, PW_EVENT, NULL);
+    fsm.add_condition_transition(&state_authenticated, &state_standby, &standby_sensor_state, true, NULL);
+    fsm.add_transition(&state_authenticated, &state_ready, CAB_EVENT, NULL);
+    fsm.add_transition(&state_authenticated, &state_brewing, COB_EVENT, NULL);
+    fsm.add_condition_transition(&state_authenticated, &state_needs_maintenance, &maintenance_sensor_state, true, NULL);
   //von brewing
-  fsm.add_timed_transition(&state_brewing, &state_ready, BREWING_TIME, NULL);
-  fsm.add_transition(&state_brewing, &state_needs_maintenance, MS_t_EVENT, NULL);
+    fsm.add_timed_transition(&state_brewing, &state_ready, BREWING_TIME, NULL);
+    fsm.add_condition_transition(&state_brewing, &state_needs_maintenance, &maintenance_sensor_state, true, NULL);
   //von needs_maintenance
-  fsm.add_transition(&state_needs_maintenance, &state_ready, MS_f_EVENT, NULL);
-  fsm.add_transition(&state_needs_maintenance, &state_standby, PW_EVENT, NULL);
-  fsm.add_transition(&state_needs_maintenance, &state_standby, SS_t_EVENT, NULL);
+    fsm.add_condition_transition(&state_needs_maintenance, &state_ready, &maintenance_sensor_state, false, NULL);
+    //fsm.add_transition(&state_needs_maintenance, &state_standby, PW_EVENT, NULL);
+    fsm.add_condition_transition(&state_needs_maintenance, &state_standby, &standby_sensor_state, true, NULL);
 
   //Pins
   pinMode(POWER_BUTTON, INPUT_PULLUP);
   pinMode(CM_POWER, OUTPUT);
+  digitalWrite(CM_POWER, HIGH);
   pinMode(COFFEE_BUTTON, INPUT_PULLUP);
   pinMode(CM_COFFEE, OUTPUT);
+  digitalWrite(CM_COFFEE, HIGH);
   pinMode(CANCEL_BUTTON, INPUT_PULLUP);
   pinMode(AUTHENTICATED_BUTTON, INPUT_PULLUP);
   pinMode(MAINTENANCE_SENSOR, INPUT);
@@ -136,13 +163,16 @@ void setup() {
   attachPCINT(digitalPinToPCINT(AUTHENTICATED_BUTTON), userAuthenticated, FALLING);
   attachPCINT(digitalPinToPCINT(COFFEE_BUTTON), coffeeButtonPressed, FALLING);
   attachPCINT(digitalPinToPCINT(CANCEL_BUTTON), cancelButtonPressed, FALLING);
-  attachPCINT(digitalPinToPCINT(MAINTENANCE_SENSOR), maintenanceSensorFalse, FALLING);
-  attachPCINT(digitalPinToPCINT(MAINTENANCE_SENSOR), maintenanceSensorTrue, RISING);
-  attachPCINT(digitalPinToPCINT(STANDBY_SENSOR), standbySensorFalse, FALLING);
-  attachPCINT(digitalPinToPCINT(STANDBY_SENSOR), standbySensorTrue, RISING);
+  attachPCINT(digitalPinToPCINT(MAINTENANCE_SENSOR), maintenanceSensorInput, CHANGE);
+  attachPCINT(digitalPinToPCINT(STANDBY_SENSOR), standbySensorInput, CHANGE);
 }
 
 void loop() {
   fsm.run_machine();
-  delay(100);
+  for(int i=0; i<num_timed_writes; i++) {
+    if((timed_writes[i].time > (millis()-(unsigned int)50)) && (timed_writes[i].time < (millis()+(unsigned int)50))) {
+      digitalWrite(timed_writes[i].pin, timed_writes[i].value);
+    }
+  }
+  delay(50);
 }
