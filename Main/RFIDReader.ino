@@ -21,32 +21,36 @@ constexpr uint8_t SS_PIN = 10;         // Configurable, see typical pin layout a
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 
-//----------------------------------------------
-//states
-State state_waiting(String("waiting"), NULL, &waiting_during, NULL);
-State state_reading(String("reading"), &reading_entry, NULL, NULL);
+void checkForCard() {
+  // Look for new cards
+  if ( ! mfrc522.PICC_IsNewCardPresent()) {
+    return;
+  }
 
-//----------------------------------------------
-Fsm fsm_rfid(&state_waiting);
+  // Select one of the cards
+  if ( ! mfrc522.PICC_ReadCardSerial()) {
+    return;
+  }
 
-
-//----------------------------------------------
-//State functions
-
-void waiting_during() {
+  Serial.print(F("\n New card - UID:"));
+  for (byte i = 0; i < mfrc522.uid.size; i++) {
+    if(mfrc522.uid.uidByte[i] < 0x10)
+      Serial.print(F(" 0"));
+    else
+      Serial.print(F(" "));
+    Serial.print(mfrc522.uid.uidByte[i], HEX);
+  } 
+  Serial.println();
   
-}
-
-void reading_entry() {
-  
+  userAuthenticated();
 }
 
 //---------------------------------------------
 void init_rfid() {
-  
-}
-
-void run_rfid() {
-  fsm_rfid.run_machine();
+  SPI.begin();      // Init SPI bus
+  mfrc522.PCD_Init();   // Init MFRC522
+  Serial.println("\n ---------------------------------------");
+  mfrc522.PCD_DumpVersionToSerial();  // Show details of PCD - MFRC522 Card Reader details
+  Serial.println("\n ---------------------------------------");
 }
 

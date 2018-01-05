@@ -9,9 +9,10 @@
 #define COFFEE_BUTTON 4
 #define CM_COFFEE 5
 #define CANCEL_BUTTON 6
-#define AUTHENTICATED_BUTTON 7
+//#define AUTHENTICATED_BUTTON 7
 #define MAINTENANCE_SENSOR 8
-#define STANDBY_SENSOR 9
+#define AUTHENTICATED_LED 14
+#define STANDBY_SENSOR 15
 //-----------------------------------------------------------------------------------------------
 struct TimedWrite {
   unsigned long time;
@@ -38,7 +39,7 @@ void addTimedWrite(long time, int pin, bool value) {
 void setup() {
   Serial.begin(9600);
 
-    //Pins
+  //Pins
   pinMode(POWER_BUTTON, INPUT_PULLUP);
   pinMode(CM_POWER, OUTPUT);
   digitalWrite(CM_POWER, HIGH);
@@ -46,13 +47,14 @@ void setup() {
   pinMode(CM_COFFEE, OUTPUT);
   digitalWrite(CM_COFFEE, HIGH);
   pinMode(CANCEL_BUTTON, INPUT_PULLUP);
-  pinMode(AUTHENTICATED_BUTTON, INPUT_PULLUP);
+  //pinMode(AUTHENTICATED_BUTTON, INPUT_PULLUP);
   pinMode(MAINTENANCE_SENSOR, INPUT);
   pinMode(STANDBY_SENSOR, INPUT);
+  pinMode(AUTHENTICATED_LED, OUTPUT);
 
   //interrupts
   attachPCINT(digitalPinToPCINT(POWER_BUTTON), powerButtonPressed, FALLING);
-  attachPCINT(digitalPinToPCINT(AUTHENTICATED_BUTTON), userAuthenticated, FALLING);
+  //attachPCINT(digitalPinToPCINT(AUTHENTICATED_BUTTON), userAuthenticated, FALLING);
   attachPCINT(digitalPinToPCINT(COFFEE_BUTTON), coffeeButtonPressed, FALLING);
   attachPCINT(digitalPinToPCINT(CANCEL_BUTTON), cancelButtonPressed, FALLING);
   attachPCINT(digitalPinToPCINT(MAINTENANCE_SENSOR), maintenanceSensorInput, CHANGE);
@@ -64,7 +66,7 @@ void setup() {
 
 void loop() {
   run_cm();
-  run_rfid();
+  checkForCard();
   for(int i=0; i<num_timed_writes; i++) {
     if((timed_writes[i].time > (millis()-(unsigned int)50)) && (timed_writes[i].time < (millis()+(unsigned int)50))) {
       digitalWrite(timed_writes[i].pin, timed_writes[i].value);

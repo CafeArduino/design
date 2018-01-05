@@ -22,7 +22,7 @@ bool maintenance_sensor_state = false;
 State state_standby(String("standby"), NULL, NULL, NULL);
 State state_booting(String("booting"), &booting_entry, NULL, NULL);
 State state_ready(String("ready"), NULL, NULL, NULL);
-State state_authenticated(String("authenticated"), NULL, NULL, NULL);
+State state_authenticated(String("authenticated"), &authenticated_entry, NULL, &authenticated_exit);
 State state_brewing(String("brewing"), &brewing_entry, NULL, NULL);
 State state_needs_maintenance(String("needs_maintenance"), NULL, NULL, NULL);
 
@@ -41,6 +41,14 @@ void brewing_entry() {
   triggerCM(CM_COFFEE);
 }
 
+void authenticated_entry() {
+  digitalWrite(AUTHENTICATED_LED, HIGH);
+}
+
+void authenticated_exit() {
+  digitalWrite(AUTHENTICATED_LED, LOW);
+}
+
 //---------------------------------------------------------------------------------------------------
 //interrupt functions
 
@@ -49,10 +57,10 @@ void powerButtonPressed() {
   fsm_cm.trigger(PW_EVENT);
 }
 
-void userAuthenticated() {
+/*void userAuthenticated() {
   Serial.println("AI_EVENT triggered");
   fsm_cm.trigger(AI_EVENT);
-}
+}*/
 
 void coffeeButtonPressed() {
   Serial.println("COB_EVENT triggered");
@@ -70,6 +78,13 @@ void maintenanceSensorInput() {
 
 void standbySensorInput() {
   standby_sensor_state = !standby_sensor_state;
+}
+
+//-----------------------------------------------------------------------------------------------
+//communication
+
+void userAuthenticated() {
+  fsm_cm.trigger(AI_EVENT);
 }
 
 //---------------------------------------------------------------------------------------------------------------
