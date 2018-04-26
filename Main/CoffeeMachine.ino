@@ -2,7 +2,7 @@
 
 
 //Times
-#define BOOTING_COMPLETED_TIME 5000
+#define BOOTING_COMPLETED_TIME 10000
 #define GOTO_STANDBY_TIME 10000
 #define CANCEL_AUTHENTICATED_TIME 5000
 #define BREWING_TIME 7000
@@ -94,8 +94,8 @@ void init_cm() {
   //von standby
     fsm_cm.add_transition(&state_standby, &state_booting, PW_EVENT, NULL);
   //von booting
-    //fsm_cm.add_condition_transition(&state_booting, &state_ready, &standby_sensor_state, false, NULL);     //Do not work properly with coffee machine model
-    fsm_cm.add_timed_transition(&state_booting, &state_ready, BOOTING_COMPLETED_TIME, NULL);
+    fsm_cm.add_condition_transition(&state_booting, &state_ready, &standby_sensor_state, false, NULL);
+    //fsm_cm.add_timed_transition(&state_booting, &state_ready, BOOTING_COMPLETED_TIME, NULL);
   //von ready
     fsm_cm.add_condition_transition(&state_ready, &state_standby, &standby_sensor_state, true, NULL);
     //fsm_cm.add_transition(&state_ready, &state_standby, PW_EVENT, NULL);
