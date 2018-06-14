@@ -1,3 +1,6 @@
+#include "libraries/arduino-fsm-modified/Fsm.h"
+#include "SPI.h"
+
 typedef uint32_t tokenId_t;
 typedef uint8_t coffee_t;
 
@@ -13,11 +16,20 @@ tokenId_t checkForCard();
 // For each user: 4 byte ID + 2 byte Coffee counter
 // Functions:
 
-enum ()...;
+enum Results{ OK                = 0,
+              FAIL              = -1,
+              NOT_FOUND         = -2,
+              NO_EMPTY_SLOT     = -3,
+              COUNTER_OVERFLOW  = -4,
+              USER_UNKNOWN      = -5,
+              NO_CARD           = 0,
+              EEPROM_FULL       = 1,
+              USER_EXISTS       = 2,
+              };
 
 // Adds a new user token
 // Returns:
-//   - SUCCESS
+//   - OK
 //   - EEPROM_FULL
 //   - USER_EXISTS
 //   - EEPROM_FAIL
@@ -25,7 +37,7 @@ int addToken(tokenId_t tokenId);
 
 // Deletes a user token
 // Returns:
-//   - SUCCESS
+//   - OK
 //   - EEPROM_FAIL
 int deleteToken(tokenId_t tokenId);
 
@@ -51,7 +63,7 @@ int getCoffeeCounter(tokenId_t tokenId);
 #define BUTTON_ESPRESSO_DOUBLE 7
 
 // Returns:
-//   - SUCCESS
+//   - OK
 //   - FAIL
 int brewCoffee(coffee_t type);
 ///////////////////////////////////////////////////////
@@ -62,7 +74,7 @@ int brewCoffee(coffee_t type);
 // Author: Lars
 
 // Returns:
-//   - SUCCESS
+//   - OK
 //   - USER_UNKNOWN
 //   - FAIL
 int authenticateToken(tokenId_t tokenId);
@@ -73,11 +85,11 @@ int authenticateToken(tokenId_t tokenId);
 ///////////////////////////////////////////////////////
 // Author: 
 void displayError(int errorCode);
-void displayString(string s);
+void displayString(String s);
 
 // All functions (except this) have to all this function and the end
 // s is composed of "function_name + function_argument(s) + return_value"
-void logging(string s);
+void logging(String s);
 ///////////////////////////////////////////////////////
 
 
@@ -85,20 +97,38 @@ void logging(string s);
 // Author: Daniel
 class Screen {
   public:
-    void print(string s);
-    void println(string s);
-    void clear();
+    void print(String s){};
+    void print(int32_t){};
+    void println(String s){};
+    void println(int32_t){};
+    void clear(){};
     /* ... */
   private:
 } gui;
 
 
 void setup() {
-  // put your setup code here, to run once:
+  logging("setup"); 
 
+  //card reader
+  setup_authenticate();
+
+  // state machine  
+  setup_statemachine();
+
+  // coffee machine
+  setup_CoffeeMachine();
 }
 
+/*
 void loop() {
-  // put your main code here, to run repeatedly:
 
+  run_cm();
+  if (tokenId_t token = checkForCard() != 0) {
+    curToken = token;
+    fsm_cm.trigger(AI_EVENT);
+  }
+
+  delay(50);
 }
+*/

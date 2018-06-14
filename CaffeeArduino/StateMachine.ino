@@ -1,8 +1,10 @@
-#include "Fsm.h"
+#include "libraries/arduino-fsm-modified/Fsm.h"
+#include "libraries/PinChangeInterrupt/src/PinChangeInterrupt.h"
+#include "SPI.h"
 
 //internal variables
 tokenId_t curToken;
-coffe_t curCoffee;
+coffee_t curCoffee;
 
 //Times
 #define CANCEL_AUTHENTICATED_TIME 5000
@@ -15,9 +17,10 @@ coffe_t curCoffee;
 //Events - do not use 0!
 #define AI_EVENT 2    //Authenticated input
 #define COB_EVENT 3   //coffe brew
-#define CAB_EVENT 4
-#define FAIL_EVENT 5
-#define UU_EVENT // unknown user
+#define CAB_EVENT 4   // cancel button
+#define UU_EVENT 5 // unknown user
+#define FAIL_EVENT 10  // general failure catch all
+
 
 void booting_entry();
 void brewing_entry();
@@ -25,7 +28,7 @@ void brewing_entry();
 State state_ready(String("ready"), &ready_entry, NULL, NULL);
 State state_authenticated(String("authenticated"), &authenticated_entry, NULL, &authenticated_exit);
 State state_brewing(String("brewing"), &brewing_entry, NULL, NULL);
-State state_coffe_ready(String("coffee_ready"), &coffee_ready_entry, NULL, NULL);
+State state_coffee_ready(String("coffee_ready"), &coffee_ready_entry, NULL, NULL);
 State state_unknown_user(String("unknown_user"), &unknown_user_entry, NULL, NULL);
 State state_fail(String("fail"), &fail_entry, NULL, NULL);
 
@@ -33,19 +36,23 @@ Fsm fsm_cm(&state_ready);
 
 //-----------------------------------------------------------------------------------------------
 
-void setup() {
+
+void setup_statemachine() {
+  logging("setup_statemachine");
 
   init_cm();
   init_interrupts();
   run_cm();
-
-  logging("setup");
 }
 
+
+
+
 void loop() {
+  run_cm();
 
   while (true) {
-    if (tokenId_t token = checkForCard() != 0) {
+    if (tokenId_t token = checkForCard() != NO_CARD) {
       curToken = token;
       fsm_cm.trigger(AI_EVENT);
     }
@@ -54,6 +61,7 @@ void loop() {
 
   logging("loop");
 }
+
 
 //---------------------------------------------------------------------------------------------------------------
 void init_cm() {
@@ -120,8 +128,8 @@ void brewing_entry() {
 }
 
 void authenticated_entry() {
-  switch (authenticate_user(curToken)) {
-    case SUCCESS: gui.println("Hallo!"); break;
+  switch (authenticateToken(curToken)) {
+    case OK: gui.println("Hallo!"); break;
     case USER_UNKNOWN: fsm_cm.trigger(UU_EVENT); break;
     case FAIL: fsm_cm.trigger(FAIL_EVENT); break;
   }
@@ -160,7 +168,7 @@ void on_no_coffee_got() {
 }
 
 void on_coffee_got() {
-  gui.println("Es wird Option " + curCoffee + " abgerechnet");
+  gui.print("Es wird Option "); gui.print(curCoffee); gui.println(" abgerechnet");
   switch(curCoffee) {
     case 4: case 6: incrementCoffeeCount(curToken, 1); break;
     case 5: case 7: incrementCoffeeCount(curToken, 2); break; 
