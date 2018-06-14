@@ -1,1 +1,0 @@
-Die Bibliotheken muessen in das Unterverzeichnis /libraries des Sketchbook-Ordners kopiert werden.
