@@ -108,6 +108,9 @@ class Screen {
 
 
 void setup() {
+  Serial1.begin(9600);     // start serial communication at 9600bps
+  Serial.begin(9600);
+  
   logging("setup"); 
 
   //card reader
