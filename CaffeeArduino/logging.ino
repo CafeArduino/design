@@ -1,4 +1,4 @@
 void logging(String s) {
-  // noch leer 
+  Serial.println(s);
 }
 
