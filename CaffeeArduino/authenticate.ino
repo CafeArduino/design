@@ -1,7 +1,11 @@
 #include <SPI.h>
 #include <MFRC522.h>
 
+#if defined(__AVR_ATmega2560__)  || defined(__AVR_ATmega1280__)
+#define SS_PIN 53
+#else 
 #define SS_PIN 10
+#endif
 #define RST_PIN 9
 
 uint16_t user1 = 0;

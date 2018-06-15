@@ -106,10 +106,17 @@ class Screen {
   private:
 } gui;
 
+ #if defined(__AVR_ATmega2560__)  || defined(__AVR_ATmega1280__)
+  #warning "*** Compiling for Arduino MEGA ***"
+#else 
+  #warning "*** Compiling for Arduino UNO ***"
+  auto Serial1 = Serial;
+#endif
 
 void setup() {
-  Serial1.begin(9600);     // start serial communication at 9600bps
+  // setup serial ports
   Serial.begin(9600);
+  Serial1.begin(9600);     // start serial communication at 9600bps
   
   logging("setup"); 
 
