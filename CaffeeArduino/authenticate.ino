@@ -35,9 +35,11 @@ tokenId_t checkForCard() {
 
   uint16_t code = 0;
 
-  if ( ! mfrc522.PICC_IsNewCardPresent())
-    return NO_CARD;
+  return (tokenId_t) 1234;
 
+  if ( ! mfrc522.PICC_IsNewCardPresent()) {
+    return NO_CARD;
+  }
     logging("CheckForCard");
   if ( ! mfrc522.PICC_ReadCardSerial())
     return NO_CARD;
