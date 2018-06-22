@@ -56,7 +56,7 @@ int getCoffeeCounter(tokenId_t tokenId);
 ///////////////////////////////////////////////////////
 // Author: Florian
 // Buttons
-#define BUTTON_CANCEL 0
+#define BUTTON_CANCEL 3
 #define BUTTON_NORMAL 4
 #define BUTTON_NORMAL_DOUBLE 5
 #define BUTTON_ESPRESSO 6
