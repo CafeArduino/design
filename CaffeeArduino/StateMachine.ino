@@ -51,11 +51,10 @@ void setup_statemachine() {
 void loop() {
   run_cm();
 
-  while (true) {
-    if (tokenId_t token = checkForCard() != NO_CARD) {
-      curToken = token;
-      fsm_cm.trigger(AI_EVENT);
-    }
+ 
+  if (tokenId_t token = checkForCard() != NO_CARD) {
+    curToken = token;
+    fsm_cm.trigger(AI_EVENT);
   }
 
   delay(250);
