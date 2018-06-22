@@ -57,9 +57,12 @@ void loop() {
       fsm_cm.trigger(AI_EVENT);
     }
   }
-  delay(50);
 
-  logging("loop");
+  delay(250);
+
+  logging(String("curToken: ") + curToken);
+  logging(String("curButton") + curCoffee);
+  //logging("loop");
 }
 
 
@@ -107,7 +110,7 @@ void init_interrupts() {
 }
 
 void run_cm() {
-  logging("run_cm");
+  ///logging("run_cm");
   fsm_cm.run_machine();
 }
 
@@ -181,35 +184,35 @@ void on_coffee_got() {
 //interrupt functions
 
 void normalButtonPressed() {
+  logging("normalButtonPressed");
+  
   curCoffee = BUTTON_NORMAL;
   fsm_cm.trigger(COB_EVENT);
-
-  logging("normalButtonPressed");
 }
 
 void normalDoubleButtonPressed() {
+ logging("normalDoubleButtonPressed");
+ 
   curCoffee = BUTTON_NORMAL_DOUBLE;
   fsm_cm.trigger(COB_EVENT);
-
-  logging("normalDoubleButtonPressed");
 }
 
 void espressoButtonPressed() {
+  logging("espressoButtonPressed");
+  
   curCoffee = BUTTON_ESPRESSO;
   fsm_cm.trigger(COB_EVENT);
-
-  logging("espressoButtonPressed");
 }
 
 void espressoDoubleButtonPressed() {
+  logging("espressoDoubleButtonPressed"); 
+
   curCoffee = BUTTON_ESPRESSO_DOUBLE;
   fsm_cm.trigger(COB_EVENT);
-
-  logging("espressoDoubleButtonPressed");
 }
 
 void cancelButtonPressed() {
+  logging("cancelButtonPressed"); 
+ 
   fsm_cm.trigger(CAB_EVENT);
-
-  logging("cancelButtonPressed");
 }

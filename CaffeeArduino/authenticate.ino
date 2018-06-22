@@ -31,14 +31,18 @@ int authenticateToken(tokenId_t tokenId) {
 
 tokenId_t checkForCard() {
 
+ //logging("CheckForCard");
 
   uint16_t code = 0;
 
   if ( ! mfrc522.PICC_IsNewCardPresent())
     return NO_CARD;
 
+    logging("CheckForCard");
   if ( ! mfrc522.PICC_ReadCardSerial())
     return NO_CARD;
+
+  logging("CheckForCard");
 
   for (byte i = 0; i < 5; i++)
     code = ((code + mfrc522.uid.uidByte[i]) * 2);
@@ -72,6 +76,8 @@ tokenId_t checkForCard() {
     //delay(2000); //testzwecke
   }
 
+  logging(String("CheckForCard ") + code);
+  
   return (tokenId_t) code;
 }
 
