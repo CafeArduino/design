@@ -8,8 +8,7 @@ coffee_t curCoffee;
 
 //Times
 #define CANCEL_AUTHENTICATED_TIME 5000
-#define BREWING_TIME 7000
-#define COFFEE_READY_WAIT_TIME 5000
+#define COFFEE_READY_WAIT_TIME 20000
 #define AUTHENTICATED_TIME 5000
 #define FAIL_TIME 10000
 #define UU_TIME 10000
@@ -27,7 +26,7 @@ void brewing_entry();
 
 State state_ready(String("ready"), &ready_entry, NULL, NULL);
 State state_authenticated(String("authenticated"), &authenticated_entry, NULL, &authenticated_exit);
-State state_brewing(String("brewing"), &brewing_entry, NULL, NULL);
+//State state_brewing(String("brewing"), &brewing_entry, NULL, NULL); //go directly into coffee_ready state
 State state_coffee_ready(String("coffee_ready"), &coffee_ready_entry, NULL, NULL);
 State state_unknown_user(String("unknown_user"), &unknown_user_entry, NULL, NULL);
 State state_fail(String("fail"), &fail_entry, NULL, NULL);
@@ -49,6 +48,8 @@ void setup_statemachine() {
 
 
 void loop() {
+  //logging("loop");
+  
   run_cm();
 
  
@@ -61,7 +62,6 @@ void loop() {
 
   logging(String("curToken: ") + curToken);
   logging(String("curButton") + curCoffee);
-  //logging("loop");
 }
 
 
@@ -74,10 +74,8 @@ void init_cm() {
   fsm_cm.add_transition(&state_ready, &state_authenticated, AI_EVENT, NULL);
   //von authenticated
   fsm_cm.add_transition(&state_authenticated, &state_ready, CAB_EVENT, NULL);
-  fsm_cm.add_transition(&state_authenticated, &state_brewing, COB_EVENT, NULL);
+  fsm_cm.add_transition(&state_authenticated, &state_coffee_ready, COB_EVENT, NULL);
   fsm_cm.add_timed_transition(&state_authenticated, &state_ready, AUTHENTICATED_TIME, NULL);
-  //von brewing
-  fsm_cm.add_timed_transition(&state_brewing, &state_coffee_ready, BREWING_TIME, NULL);
   //von coffee_Ready
   fsm_cm.add_timed_transition(&state_coffee_ready, &state_ready, COFFEE_READY_WAIT_TIME, &on_coffee_got);
   fsm_cm.add_transition(&state_coffee_ready, &state_ready, CAB_EVENT, &on_no_coffee_got);
@@ -109,7 +107,7 @@ void init_interrupts() {
 }
 
 void run_cm() {
-  ///logging("run_cm");
+  //logging("run_cm");
   fsm_cm.run_machine();
 }
 
@@ -117,66 +115,51 @@ void run_cm() {
 //state functions
 
 void ready_entry() {
-  gui.println("Bitte authentifizieren Sie sich");
-
   logging("ready_entry");
-}
-
-void brewing_entry() {
-  gui.println("Brewing...");
-  brewCoffee(curCoffee);
-
-  logging("brewing_entry");
+  gui.println("Bitte authentifizieren Sie sich");
 }
 
 void authenticated_entry() {
+  logging("authenticated_entry");
   switch (authenticateToken(curToken)) {
     case OK: gui.println("Hallo!"); break;
     case USER_UNKNOWN: fsm_cm.trigger(UU_EVENT); break;
     case FAIL: fsm_cm.trigger(FAIL_EVENT); break;
   }
-
-  logging("authenticated_entry");
 }
 
 void authenticated_exit() {
-  gui.clear();
-
   logging("authenticated_exit");
+  gui.clear(); //not necessary
 }
 
 void fail_entry() {
-  gui.println("Es ist ein Feheler aufgetreten");
-
   logging("fail_entry");
+  gui.println("Es ist ein Feheler aufgetreten");
 }
 
 void unknown_user_entry() {
-  gui.println("Unbekannter User. Bitte registrieren lassen.");
-
   logging("unknown_user_entry");
+  gui.println("Unbekannter User. Bitte registrieren lassen.");
 }
 
 void coffee_ready_entry() {
-  gui.println("Wenn sie keinen Kaffee erhalten haben, drücken Sie 'Cancel'");
-  
   logging("coffee_ready_entry");
+  gui.println("Wenn die Kaffeemaschine einen Fehler meldet, drücken Sie bitte 'Cancel'");
 }
 
 void on_no_coffee_got() {
-  gui.println("Es wird nichts abgerechnet. Überprüfen Sie die Kaffeemaschine auf Betriebsbereitschaft.");
-
   logging("on_no_coffee_got");
+  gui.println("Es wird nichts abgerechnet. Überprüfen Sie die Kaffeemaschine auf Betriebsbereitschaft.");
 }
 
 void on_coffee_got() {
+  logging("on_coffee_got");
   gui.print("Es wird Option "); gui.print(curCoffee); gui.println(" abgerechnet");
   switch(curCoffee) {
     case 4: case 6: incrementCoffeeCount(curToken, 1); break;
     case 5: case 7: incrementCoffeeCount(curToken, 2); break; 
   }
-
-  logging("on_coffee_got");
 }
 
 //---------------------------------------------------------------------------------------------------
