@@ -56,11 +56,22 @@ int getCoffeeCounter(tokenId_t tokenId);
 ///////////////////////////////////////////////////////
 // Author: Florian
 // Buttons
-#define BUTTON_CANCEL 3
-#define BUTTON_NORMAL 4
-#define BUTTON_NORMAL_DOUBLE 5
-#define BUTTON_ESPRESSO 6
-#define BUTTON_ESPRESSO_DOUBLE 7
+#if defined(__AVR_ATmega2560__)  || defined(__AVR_ATmega1280__)
+  #warning "*** Compiling for Arduino MEGA ***"
+  #define BUTTON_CANCEL A8
+  #define BUTTON_NORMAL A9
+  #define BUTTON_NORMAL_DOUBLE A10
+  #define BUTTON_ESPRESSO A11
+  #define BUTTON_ESPRESSO_DOUBLE A12
+#else 
+  #warning "*** Compiling for Arduino UNO ***"
+  #define BUTTON_CANCEL 3
+  #define BUTTON_NORMAL 4
+  #define BUTTON_NORMAL_DOUBLE 5
+  #define BUTTON_ESPRESSO 6
+  #define BUTTON_ESPRESSO_DOUBLE 7
+#endif
+
 
 // Returns:
 //   - OK
