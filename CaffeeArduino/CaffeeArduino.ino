@@ -56,11 +56,12 @@ int getCoffeeCounter(tokenId_t tokenId);
 ///////////////////////////////////////////////////////
 // Author: Florian
 // Buttons
-#define BUTTON_CANCEL 3
-#define BUTTON_NORMAL 4
-#define BUTTON_NORMAL_DOUBLE 5
-#define BUTTON_ESPRESSO 6
-#define BUTTON_ESPRESSO_DOUBLE 7
+// Button pins currently only for Arduino Mega
+#define BUTTON_CANCEL A8
+#define BUTTON_NORMAL A9
+#define BUTTON_NORMAL_DOUBLE A10
+#define BUTTON_ESPRESSO A11
+#define BUTTON_ESPRESSO_DOUBLE A12
 
 // Returns:
 //   - OK
