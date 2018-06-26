@@ -1,4 +1,7 @@
 #include "libraries/arduino-fsm-modified/Fsm.h"
+#include "libraries/Adafruit_GFX/Adafruit_GFX.h"    // Core graphics library
+#include "libraries/Adafruit_TFTLCD/Adafruit_TFTLCD.h" // Hardware-specific library
+
 #include "SPI.h"
 
 typedef uint32_t tokenId_t;
