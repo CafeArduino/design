@@ -5,7 +5,7 @@ typedef uint32_t tokenId_t;
 typedef uint8_t coffee_t;
 
 // Returns:
-//   - 0x0 if no card present
+//   - 0x0 (NO_CARD) if no card present
 //   - 4 first bytes of the ID of the card
 // Author: Lars
 tokenId_t checkForCard();
@@ -128,6 +128,10 @@ void setup() {
 
   // coffee machine
   setup_CoffeeMachine();
+
+  // add a token; have no token management yet
+  addToken(2719172356);
+  logging(String("users: ") + getNumberUsers());
 }
 
 /*
