@@ -26,13 +26,15 @@ int tokenPosition(tokenId_t id) {
   uint32_t val;
   uint8_t* p1 = (uint8_t*)&id;
   uint8_t* p2 = (uint8_t*)&val;
-  
+
+  logging(__FUNCTION__);
   for(int i=1; i<=MAX_USERS; i++) {
     p2[0] = EEPROM.read((8*i)+0);
     p2[1] = EEPROM.read((8*i)+1);
     p2[2] = EEPROM.read((8*i)+2);
     p2[3] = EEPROM.read((8*i)+3);
 
+    //Serial.println(id, HEX); Serial.println(val, HEX);
     if(id == val) { // if equal, it was found
       return i;     // return the index
     }

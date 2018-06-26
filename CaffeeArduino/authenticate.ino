@@ -8,6 +8,8 @@
 #endif
 #define RST_PIN 9
 
+#define MASTER_TOKEN 1505981968
+
 uint16_t user1 = 0;
 uint16_t user2 = 0;
 
@@ -29,58 +31,66 @@ int authenticateToken(tokenId_t tokenId) {
     return OK;
 }
 
+void manageTokens() {
+logging(__FUNCTION__);
+
+  delay(500);
+  return;
+}
+
+
+tokenId_t hash_uuid() {
+  const byte len = 4;
+  byte buf[len] = {0}; 
+  uint32_t hash;
+  
+/* 
+  for (byte i = 0; i < 5; i++)
+    hash = ((hash + mfrc522.uid.uidByte[i]) * 2);
+*/
+  // take first 4 bytes
+  for (byte i=0; i<len; i++) 
+    buf[i] = mfrc522.uid.uidByte[i]; 
+  memcpy(&hash, buf, 4);
+
+  return (tokenId_t) hash; 
+}
+
 tokenId_t checkForCard() {
+  tokenId_t code = 0;
 
- //logging("CheckForCard");
-
-  uint16_t code = 0;
-
-  return (tokenId_t) 1234;
+  logging("CheckForCard");
+  
+  // for debug always authenticate: return (tokenId_t) 1234;
 
   if ( ! mfrc522.PICC_IsNewCardPresent()) {
     return NO_CARD;
   }
-    logging("CheckForCard");
+
   if ( ! mfrc522.PICC_ReadCardSerial())
     return NO_CARD;
 
-  logging("CheckForCard");
+  code = hash_uuid();
 
-  for (byte i = 0; i < 5; i++)
-    code = ((code + mfrc522.uid.uidByte[i]) * 2);
-
-  if (code == 5988) {
-    user1++;
-    Serial.print("user1: authenticated");
-    Serial.print(" | ");
-    Serial.print(user1);
-    Serial.print(" | ");
-    Serial.print("card number: ");
-    Serial.println(code);
-    //delay(2000); //testzwecke
+  if (code == MASTER_TOKEN) {
+    manageTokens();
+    return NO_CARD;
   }
 
-  else if (code == 7364) {
-    user2++;
-    Serial.print("user2: authenticated");
-    Serial.print(" | ");
-    Serial.print(user2);
-    Serial.print(" | ");
-    Serial.print("card number: ");
-    Serial.println(code);
-    //delay(2000); //testzwecke
-  }
-  else {
-    Serial.print("card number not known");
-    Serial.print(" | ");
-    Serial.print("card number: ");
-    Serial.println(code);
-    //delay(2000); //testzwecke
-  }
 
-  logging(String("CheckForCard ") + code);
+  // found a token
+  logging(String("checkForCard: token ") + code );
+  //logging(String("checkForCard: index ") + tokenPosition(code) );
+  //logging(String("CheckForCard "));
+  //Serial.println(code, HEX);
+
+  // now, check if token is known already
+  if (tokenPosition(code) != NOT_FOUND) {
+    logging("checkForCard: valid token ");
+    return (tokenId_t) code; 
+  }
   
-  return (tokenId_t) code;
+  return NO_CARD;
 }
 
 
