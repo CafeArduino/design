@@ -145,6 +145,7 @@ void unknown_user_entry() {
 
 void coffee_ready_entry() {
   logging("coffee_ready_entry");
+  brewCoffee(curCoffee);
   gui.println("Wenn die Kaffeemaschine einen Fehler meldet, drücken Sie bitte 'Cancel'");
 }
 
