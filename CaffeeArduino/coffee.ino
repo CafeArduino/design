@@ -97,7 +97,7 @@ int brewCoffee(coffee_t type){
   logging("brewCoffee");
   
   // TODO: implement coffee types
-  cmd = "FA:04"; // << type;
+  cmd = "FA:04\n\r"; // << type;
   
   logging(String("brewCoffe: sending") + cmd);  
   toCoffeeMachine(cmd);
