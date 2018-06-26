@@ -93,11 +93,11 @@ void init_interrupts() {
   logging("init_interrupts");
 
   //Pins
-  pinMode(BUTTON_CANCEL, OUTPUT);
-  pinMode(BUTTON_NORMAL, OUTPUT);
-  pinMode(BUTTON_NORMAL_DOUBLE, OUTPUT);
-  pinMode(BUTTON_ESPRESSO, OUTPUT);
-  pinMode(BUTTON_ESPRESSO_DOUBLE, OUTPUT);
+  pinMode(BUTTON_CANCEL, INPUT);
+  pinMode(BUTTON_NORMAL, INPUT);
+  pinMode(BUTTON_NORMAL_DOUBLE, INPUT);
+  pinMode(BUTTON_ESPRESSO, INPUT);
+  pinMode(BUTTON_ESPRESSO_DOUBLE, INPUT);
 
   //interrupts
   attachPCINT(digitalPinToPCINT(BUTTON_CANCEL), cancelButtonPressed, FALLING);
