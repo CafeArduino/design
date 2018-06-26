@@ -157,8 +157,8 @@ void on_coffee_got() {
   logging("on_coffee_got");
   gui.print("Es wird Option "); gui.print(curCoffee); gui.println(" abgerechnet");
   switch(curCoffee) {
-    case 4: case 6: incrementCoffeeCount(curToken, 1); break;
-    case 5: case 7: incrementCoffeeCount(curToken, 2); break; 
+    case BUTTON_NORMAL: case BUTTON_ESPRESSO: incrementCoffeeCount(curToken, 1); break;
+    case BUTTON_NORMAL_DOUBLE: case BUTTON_ESPRESSO_DOUBLE: incrementCoffeeCount(curToken, 2); break; 
   }
 }
 
