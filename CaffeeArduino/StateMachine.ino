@@ -52,8 +52,8 @@ void loop() {
   
   run_cm();
 
- 
-  if (tokenId_t token = checkForCard() != NO_CARD) {
+  tokenId_t token = checkForCard();
+  if (token != NO_CARD) {
     curToken = token;
     fsm_cm.trigger(AI_EVENT);
   }
