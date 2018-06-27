@@ -3,6 +3,7 @@
 
 typedef uint32_t tokenId_t;
 typedef uint8_t coffee_t;
+//struct coffee_desc_s;
 
 // Returns:
 //   - 0x0 (NO_CARD) if no card present

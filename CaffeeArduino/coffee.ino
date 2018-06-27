@@ -7,6 +7,20 @@
 /*                                                            */
 /**************************************************************/
 
+struct coffee_desc_s {
+  const coffee_t button;
+  const char cmd[8];    // brew command code, e.g "FA:04\n\r"
+  const char label[16];  // label for GUI, logging, etc
+  };
+
+
+const coffee_desc_s coffee_desc[4] = {
+  {BUTTON_NORMAL, "FA:04\n\r", "Kaffee" },
+  {BUTTON_NORMAL_DOUBLE, "FA:04\n\r", "Kaffee gross" },
+  {BUTTON_ESPRESSO, "FA:04\n\r", "Espresso" },
+  {BUTTON_ESPRESSO_DOUBLE, "FA:04\n\r", "Espresso gross" },
+};
+
 String inData;
 
 void setup_CoffeeMachine() {
@@ -84,6 +98,19 @@ void toCoffeeMachine(String outputString) {
 /**************************************************************/
 
 
+struct coffee_desc_s getCoffeeDesc(const coffee_t type) {
+  const byte n_types =  sizeof(typeof(coffee_desc)) / sizeof(coffee_desc_s);
+
+  for(int i=0; i<n_types; i++) {
+    if (type == coffee_desc[i].button) {
+      // printf("Coffee type: %d, label: %s\n", coffee_desc[i].button, coffee_desc[i].label);
+      return coffee_desc[i];
+    }
+  }
+
+  // should never reach here
+  return coffee_desc[0];
+}
 
 
 
@@ -96,10 +123,9 @@ int brewCoffee(coffee_t type){
 
   logging("brewCoffee");
   
-  // TODO: implement coffee types
-  cmd = "FA:04\n\r"; // << type;
+  cmd = getCoffeeDesc(type).cmd;
   
-  logging(String("brewCoffe: sending") + cmd);  
+  logging(String("brewCoffee: sending ") + cmd);
   toCoffeeMachine(cmd);
   
 }
