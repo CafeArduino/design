@@ -47,9 +47,8 @@ int deleteToken(tokenId_t tokenId);
 //   - EEPROM_FAIL
 //   - COUNTER_OVERFLOW
 // Count valid values (1 or 2)
-int incrementCoffeeCount(tokenId_t tokenId, int count);
+int incrementCoffeeCount(tokenId_t tokenId, int8_t count);
 
-// Returns:
 //   - Coffee counter for the given tokenId
 //   - FAIL if the token does not exist
 int getCoffeeCounter(tokenId_t tokenId);
