@@ -210,4 +210,23 @@ void eepromStatus() {
   }
 }
 
+void eepromRawStatus() {
+  uint8_t v;
+  
+  for(int i=0; i<8; ++i) {
+    v = EEPROM.read(i);
+    Serial.print(v, HEX);
+    Serial.print(" ");
+  }
+  Serial.println();
+
+  for(int i=1; i<=MAX_USERS; i++) {
+    for(int j=0; j<8; ++j) {
+      v = EEPROM.read((i*8)+j);
+      Serial.print(v, HEX);
+      Serial.print(" ");
+    }
+  }
+}
+
 /**************************************************************/
