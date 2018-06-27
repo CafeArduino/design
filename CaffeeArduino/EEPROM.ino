@@ -128,13 +128,12 @@ int addToken(tokenId_t id) {
 
 // Return the number of coffes of the user
 // or FAIL if not found
-int getCoffeeCounter(tokenId_t tokenId) {
-  uint16_t count;
+int16_t getCoffeeCounter(tokenId_t tokenId) {
+  int16_t count;
   
   int index = tokenPosition(tokenId);
   if(index > 0) {
-
-    uint8_t* p = (uint8_t*)&count;
+    int8_t* p = (int8_t*)&count;
     p[0] = EEPROM.read((index*8)+4);
     p[1] = EEPROM.read((index*8)+5);
     
@@ -145,24 +144,23 @@ int getCoffeeCounter(tokenId_t tokenId) {
   }
 }
 
-int incrementCoffeeCount(tokenId_t tokenId, int count) {
-  int _count = getCoffeeCounter(tokenId);
+int incrementCoffeeCount(tokenId_t tokenId, int8_t count) {
+  int16_t _count = getCoffeeCounter(tokenId);
 
   // check for error reading current cofee count
-  if(count < 0) {
+  if(_count < 0) {
     return FAIL;
   }
 
-  uint16_t _count16 = (uint16_t)_count;
-  _count16 += (uint16_t)count;
+  _count += (int16_t)count;
 
   // check for counter overflow
-  if(_count16 < (uint16_t)_count) {
+  if(_count < 0) {
     return COUNTER_OVERFLOW;
   }
 
   // Write the updated coffee counter for the given user
-  uint8_t* p = (uint8_t*)&_count16;
+  uint8_t* p = (uint8_t*)&_count;
   int index = tokenPosition(tokenId);
   EEPROM.write((index*8)+4, p[0]);
   EEPROM.write((index*8)+5, p[1]);
