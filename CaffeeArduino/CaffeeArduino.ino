@@ -148,7 +148,9 @@ void setup() {
 
   // add a token; have no token management yet
   addToken(2719172356);
-  logging(String("users: ") + getNumberUsers());
+
+  // report EEPROM contents
+  eepromStatus();
 }
 
 /*

@@ -161,6 +161,8 @@ void on_coffee_got() {
     case BUTTON_NORMAL: case BUTTON_ESPRESSO: incrementCoffeeCount(curToken, 1); break;
     case BUTTON_NORMAL_DOUBLE: case BUTTON_ESPRESSO_DOUBLE: incrementCoffeeCount(curToken, 2); break; 
   }
+  
+  eepromStatus();
 }
 
 //---------------------------------------------------------------------------------------------------
