@@ -60,8 +60,8 @@ void loop() {
 
   delay(250);
 
-  logging(String("curToken: ") + curToken);
-  logging(String("curButton") + curCoffee);
+  // logging(String("curToken: ") + curToken);
+  // logging(String("curButton") + curCoffee);
 }
 
 

@@ -59,7 +59,7 @@ tokenId_t hash_uuid() {
 tokenId_t checkForCard() {
   tokenId_t code = 0;
 
-  logging("CheckForCard");
+  // logging("CheckForCard");
   
   // for debug always authenticate: return (tokenId_t) 1234;
 
