@@ -1,4 +1,3 @@
-
 /**************************************************************/
 /**************************************************************/
 /*                      EEPROM functions                      */
@@ -171,5 +170,46 @@ int incrementCoffeeCount(tokenId_t tokenId, int count) {
   return OK;
 }
 
-/**************************************************************/
+void eepromStatus() {
+  uint32_t val;
+  uint8_t* p = (uint8_t*)&val;
+  uint16_t count;
+  uint8_t* c = (uint8_t*)&count;
 
+  int slots = 0;
+  int n = EEPROM.read(0x00);
+  Serial.print("Registered Users: ");
+  Serial.println(n);
+ 
+
+  for(int i=1; i<=MAX_USERS; i++) {
+    p[0] = EEPROM.read((8*i)+0);
+    p[1] = EEPROM.read((8*i)+1);
+    p[2] = EEPROM.read((8*i)+2);
+    p[3] = EEPROM.read((8*i)+3);
+    c[0] = EEPROM.read((i*8)+4);
+    c[1] = EEPROM.read((i*8)+5);
+
+    Serial.print("Slot ");
+    Serial.print(i);
+    if(0x00000000 == val) { // if empty slot found
+      Serial.println(": EMPTY");
+    }
+    else {
+      Serial.print(" TOKEN: ");
+      Serial.print(val);
+      Serial.print(", coffees: ");
+      Serial.println(count);
+      slots++;
+    }
+  }
+
+  if(n == slots) {
+    Serial.println("GOOD: Register users and used slots is equal");
+  }
+  else {
+    Serial.println("BAD: Register users and used slots is different");
+  }
+}
+
+/**************************************************************/

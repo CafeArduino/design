@@ -49,7 +49,13 @@ int deleteToken(tokenId_t tokenId);
 // Count valid values (1 or 2)
 int incrementCoffeeCount(tokenId_t tokenId, int count);
 
+// Returns:
+//   - Coffee counter for the given tokenId
+//   - FAIL if the token does not exist
 int getCoffeeCounter(tokenId_t tokenId);
+
+// Returns: nothing
+void eepromStatus();
 ///////////////////////////////////////////////////////
 
 
