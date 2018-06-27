@@ -16,9 +16,9 @@ struct coffee_desc_s {
 
 const coffee_desc_s coffee_desc[4] = {
   {BUTTON_NORMAL, "FA:04\n\r", "Kaffee" },
-  {BUTTON_NORMAL_DOUBLE, "FA:04\n\r", "Kaffee gross" },
-  {BUTTON_ESPRESSO, "FA:04\n\r", "Espresso" },
-  {BUTTON_ESPRESSO_DOUBLE, "FA:04\n\r", "Espresso gross" },
+  {BUTTON_NORMAL_DOUBLE, "FA:05\n\r", "Kaffee gross" },
+  {BUTTON_ESPRESSO, "FA:06\n\r", "Espresso" },
+  {BUTTON_ESPRESSO_DOUBLE, "FA:07\n\r", "Espresso gross" },
 };
 
 String inData;
