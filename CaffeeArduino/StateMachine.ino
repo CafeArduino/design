@@ -42,6 +42,7 @@ void setup_statemachine() {
   init_cm();
   init_interrupts();
   run_cm();
+  ready_entry();
 }
 
 
@@ -153,6 +154,7 @@ void coffee_ready_entry() {
 void on_no_coffee_got() {
   logging("on_no_coffee_got");
   gui.println("Es wird nichts abgerechnet. Überprüfen Sie die Kaffeemaschine auf Betriebsbereitschaft.");
+  delay(1000);   // just to keep the message visible.
 }
 
 void on_coffee_got() {
@@ -162,7 +164,7 @@ void on_coffee_got() {
     case BUTTON_NORMAL: case BUTTON_ESPRESSO: incrementCoffeeCount(curToken, 1); break;
     case BUTTON_NORMAL_DOUBLE: case BUTTON_ESPRESSO_DOUBLE: incrementCoffeeCount(curToken, 2); break; 
   }
-  
+  delay(1000);   // just to keep the message visible.
   eepromStatus();
 }
 
