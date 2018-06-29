@@ -114,14 +114,16 @@ void logging(String s);
 // Author: Daniel
 class Screen {
   public:
-    void print(String s){};
-    void print(int32_t){};
-    void println(String s){};
-    void println(int32_t){};
-    void clear(){};
+    void print(String s);
+    void print(uint32_t);
+    void println(String s);
+    void println(uint32_t);
+    void clear();
     /* ... */
   private:
-} gui;
+};
+
+Screen gui;
 
  #if defined(__AVR_ATmega2560__)  || defined(__AVR_ATmega1280__)
   #warning "*** Compiling for Arduino MEGA ***"
@@ -140,12 +142,15 @@ void setup() {
   //card reader
   setup_authenticate();
 
+  // LCD Display
+  setup_gui();
+  
   // state machine  
   setup_statemachine();
 
   // coffee machine
   setup_CoffeeMachine();
-
+  
   // add a token; have no token management yet
   addToken(2719172356);
 

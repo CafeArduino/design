@@ -116,6 +116,7 @@ void run_cm() {
 
 void ready_entry() {
   logging("ready_entry");
+  gui.clear();
   gui.println("Bitte authentifizieren Sie sich");
 }
 
