@@ -123,7 +123,7 @@ void ready_entry() {
 void authenticated_entry() {
   logging("authenticated_entry");
   switch (authenticateToken(curToken)) {
-    case OK: gui.println("Hallo!"); break;
+    case OK: gui.print("Found token "); gui.println(curToken); break;
     case USER_UNKNOWN: fsm_cm.trigger(UU_EVENT); break;
     case FAIL: fsm_cm.trigger(FAIL_EVENT); break;
   }
@@ -141,7 +141,7 @@ void fail_entry() {
 
 void unknown_user_entry() {
   logging("unknown_user_entry");
-  gui.println("Unbekannter User. Bitte registrieren lassen.");
+  gui.print("Unknown token"); gui.println(curToken); gui.println("Please register!");
 }
 
 void coffee_ready_entry() {
