@@ -77,6 +77,7 @@ void init_cm() {
   fsm_cm.add_transition(&state_authenticated, &state_ready, CAB_EVENT, NULL);
   fsm_cm.add_transition(&state_authenticated, &state_coffee_ready, COB_EVENT, NULL);
   fsm_cm.add_timed_transition(&state_authenticated, &state_ready, AUTHENTICATED_TIME, NULL);
+  fsm_cm.add_transition(&state_authenticated, &state_unknown_user, UU_EVENT, NULL);
   //von coffee_Ready
   fsm_cm.add_timed_transition(&state_coffee_ready, &state_ready, COFFEE_READY_WAIT_TIME, &on_coffee_got);
   fsm_cm.add_transition(&state_coffee_ready, &state_ready, CAB_EVENT, &on_no_coffee_got);
