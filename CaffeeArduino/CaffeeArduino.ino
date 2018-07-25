@@ -153,6 +153,7 @@ void setup() {
   
   // add a token; have no token management yet
   addToken(2719172356);
+  addToken(975191044);
 
   // report EEPROM contents
   eepromStatus();
