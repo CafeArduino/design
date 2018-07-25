@@ -125,8 +125,9 @@ void authenticated_entry() {
   logging("authenticated_entry");
   switch (authenticateToken(curToken)) {
     case OK: gui.print("Found token "); gui.println(curToken); break;
-    case USER_UNKNOWN: fsm_cm.trigger(UU_EVENT); break;
-    case FAIL: fsm_cm.trigger(FAIL_EVENT); break;
+    case USER_UNKNOWN:   gui.print("Unknown token"); gui.println(curToken); gui.println("Please register!"); delay(1000); fsm_cm.trigger(UU_EVENT); break;
+    case FAIL: gui.print("Failed"); fsm_cm.trigger(FAIL_EVENT); break;
+    default: gui.print("????"); break;
   }
 }
 
@@ -143,6 +144,7 @@ void fail_entry() {
 void unknown_user_entry() {
   logging("unknown_user_entry");
   gui.print("Unknown token"); gui.println(curToken); gui.println("Please register!");
+  delay(1000);
 }
 
 void coffee_ready_entry() {
