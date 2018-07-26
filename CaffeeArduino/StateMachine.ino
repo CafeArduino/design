@@ -24,7 +24,7 @@ coffee_t curCoffee;
 void booting_entry();
 void brewing_entry();
 
-State state_ready(String("ready"), &ready_entry, NULL, NULL);
+State state_ready(String("ready"), &ready_entry, &ready_loop, NULL);
 State state_authenticated(String("authenticated"), &authenticated_entry, NULL, &authenticated_exit);
 //State state_brewing(String("brewing"), &brewing_entry, NULL, NULL); //go directly into coffee_ready state
 State state_coffee_ready(String("coffee_ready"), &coffee_ready_entry, NULL, NULL);
@@ -52,12 +52,6 @@ void loop() {
   //logging("loop");
   
   run_cm();
-
-  tokenId_t token = checkForCard();
-  if (token != NO_CARD) {
-    curToken = token;
-    fsm_cm.trigger(AI_EVENT);
-  }
 
   delay(250);
 
@@ -120,6 +114,14 @@ void ready_entry() {
   logging("ready_entry");
   gui.clear();
   gui.println("Bitte authentifizieren Sie sich");
+}
+
+void ready_loop() {
+  tokenId_t token = checkForCard();
+  if (token != NO_CARD) {
+    curToken = token;
+    fsm_cm.trigger(AI_EVENT);
+  }
 }
 
 void authenticated_entry() {
