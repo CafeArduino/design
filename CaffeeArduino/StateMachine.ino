@@ -128,12 +128,15 @@ void run_cm() {
 //state functions
 
 void ready_entry() {
-  logging("ready_entry");
+  logging(__FUNCTION__);
   gui.clear();
   gui.println("Bitte authentifizieren Sie sich");
 }
 
+
 void ready_loop() {
+  // logging(__FUNCTION);
+
   tokenId_t token = checkForCard();
   
   if (NO_CARD == token)
@@ -156,12 +159,12 @@ void unknown_user() {
 }
 
 void authenticated_entry() {
-  logging("authenticated_entry");
+  logging(__FUNCTION__);
   gui.print("Found token "); gui.println(curToken);
 }
 
 void authenticated_exit() {
-  logging("authenticated_exit");
+  logging(__FUNCTION__);
   gui.clear(); //not necessary
 }
 
@@ -173,17 +176,24 @@ void brewing_entry() {
 }
 
 void on_no_coffee_got() {
-  logging("on_no_coffee_got");
+  logging(__FUNCTION__);
   gui.println("Es wird nichts abgerechnet. Überprüfen Sie die Kaffeemaschine auf Betriebsbereitschaft.");
   delay(1000);   // just to keep the message visible.
 }
 
 void on_coffee_got() {
-  logging("on_coffee_got");
+  logging(__FUNCTION__);
   gui.print("Es wird Option "); gui.print(curCoffee); gui.println(" abgerechnet");
+
   switch(curCoffee) {
-    case BUTTON_NORMAL: case BUTTON_ESPRESSO: incrementCoffeeCount(curToken, 1); break;
-    case BUTTON_NORMAL_DOUBLE: case BUTTON_ESPRESSO_DOUBLE: incrementCoffeeCount(curToken, 2); break; 
+    case BUTTON_NORMAL: 
+    case BUTTON_ESPRESSO: 
+      incrementCoffeeCount(curToken, 1);
+      break;
+    case BUTTON_NORMAL_DOUBLE:
+    case BUTTON_ESPRESSO_DOUBLE:
+      incrementCoffeeCount(curToken, 2);
+      break; 
   }
   delay(1000);   // just to keep the message visible.
   eepromStatus();
