@@ -159,15 +159,3 @@ void setup() {
   eepromStatus();
 }
 
-/*
-void loop() {
-
-  run_cm();
-  if (tokenId_t token = checkForCard() != 0) {
-    curToken = token;
-    fsm_cm.trigger(AI_EVENT);
-  }
-
-  delay(50);
-}
-*/
