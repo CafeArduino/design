@@ -14,22 +14,15 @@ coffee_t curCoffee;
 #define UU_TIME 10000
 
 //Events - do not use 0!
-#define AI_EVENT 2    //Authenticated input
-#define COB_EVENT 3   //coffe brew
+#define AI_EVENT 2    // authenticated input
+#define COB_EVENT 3   // coffee button
 #define CAB_EVENT 4   // cancel button
-#define UU_EVENT 5 // unknown user
-#define FAIL_EVENT 10  // general failure catch all
-
-
-void booting_entry();
-void brewing_entry();
+#define UU_EVENT 5    // unknown user
+// #define FAIL_EVENT 10  // general failure catch all
 
 State state_ready(String("ready"), &ready_entry, &ready_loop, NULL);
 State state_authenticated(String("authenticated"), &authenticated_entry, NULL, &authenticated_exit);
-//State state_brewing(String("brewing"), &brewing_entry, NULL, NULL); //go directly into coffee_ready state
-State state_coffee_ready(String("coffee_ready"), &coffee_ready_entry, NULL, NULL);
-State state_unknown_user(String("unknown_user"), &unknown_user_entry, NULL, NULL);
-State state_fail(String("fail"), &fail_entry, NULL, NULL);
+State state_brewing(String("brewing_coffee"), &brewing_entry, NULL, NULL);
 
 Fsm fsm_cm(&state_ready);
 
@@ -65,22 +58,46 @@ void init_cm() {
 
   logging("init_cm");
 
+/*
+This is the current state machine. Visualisation, e.g. on https://dreampuf.github.io/GraphvizOnline/
+
+digraph finite_state_machine {
+
+  node [shape = doublecircle] fail;
+  node [shape = circle];
+
+  rankdir = LR;
+
+  ready;
+  auth;
+  brewing;
+
+  ready -> auth [label = "AI", color = "red"];
+  ready -> ready  [label = "UU", color = "red"];
+
+  auth -> ready [label = "CAB", color = "red"];
+  auth -> brewing [label = "COB", color = "red"];
+  auth -> ready [label = "time", color = "blue"];
+
+  brewing -> ready [label = "time", color = "blue"];
+  brewing -> ready [label = "CAB", color = "red"];
+
+}
+ */
+
   //von ready
   fsm_cm.add_transition(&state_ready, &state_authenticated, AI_EVENT, NULL);
+  fsm_cm.add_transition(&state_ready, &state_ready, UU_EVENT, &unknown_user);
+
   //von authenticated
   fsm_cm.add_transition(&state_authenticated, &state_ready, CAB_EVENT, NULL);
-  fsm_cm.add_transition(&state_authenticated, &state_coffee_ready, COB_EVENT, NULL);
+  fsm_cm.add_transition(&state_authenticated, &state_brewing, COB_EVENT, NULL);
   fsm_cm.add_timed_transition(&state_authenticated, &state_ready, AUTHENTICATED_TIME, NULL);
-  fsm_cm.add_transition(&state_authenticated, &state_unknown_user, UU_EVENT, NULL);
-  //von coffee_Ready
-  fsm_cm.add_timed_transition(&state_coffee_ready, &state_ready, COFFEE_READY_WAIT_TIME, &on_coffee_got);
-  fsm_cm.add_transition(&state_coffee_ready, &state_ready, CAB_EVENT, &on_no_coffee_got);
-  //von unknown_user
-  fsm_cm.add_timed_transition(&state_unknown_user, &state_ready, UU_TIME, NULL);
-  fsm_cm.add_transition(&state_unknown_user, &state_ready, CAB_EVENT, NULL);
-  //von fail
-  fsm_cm.add_timed_transition(&state_fail, &state_ready, FAIL_TIME, NULL);
-  fsm_cm.add_transition(&state_fail, &state_ready, CAB_EVENT, NULL);
+
+  //von brewing
+  fsm_cm.add_timed_transition(&state_brewing, &state_ready, COFFEE_READY_WAIT_TIME, &on_coffee_got);
+  fsm_cm.add_transition(&state_brewing, &state_ready, CAB_EVENT, &on_no_coffee_got);
+
 }
 
 void init_interrupts() {
@@ -118,20 +135,29 @@ void ready_entry() {
 
 void ready_loop() {
   tokenId_t token = checkForCard();
-  if (token != NO_CARD) {
-    curToken = token;
+  
+  if (NO_CARD == token)
+    return;
+
+  curToken = token;
+
+  if (authenticateToken(token) == USER_UNKNOWN) {
+    fsm_cm.trigger(UU_EVENT);
+  } else {
     fsm_cm.trigger(AI_EVENT);
   }
 }
 
+void unknown_user() {
+  logging(__FUNCTION__);
+  gui.print("Unknown token"); gui.println(curToken);
+  gui.println("Please register!");
+  delay(1000);
+}
+
 void authenticated_entry() {
   logging("authenticated_entry");
-  switch (authenticateToken(curToken)) {
-    case OK: gui.print("Found token "); gui.println(curToken); break;
-    case USER_UNKNOWN:   gui.print("Unknown token"); gui.println(curToken); gui.println("Please register!"); delay(1000); fsm_cm.trigger(UU_EVENT); break;
-    case FAIL: gui.print("Failed"); fsm_cm.trigger(FAIL_EVENT); break;
-    default: gui.print("????"); break;
-  }
+  gui.print("Found token "); gui.println(curToken);
 }
 
 void authenticated_exit() {
@@ -139,19 +165,9 @@ void authenticated_exit() {
   gui.clear(); //not necessary
 }
 
-void fail_entry() {
-  logging("fail_entry");
-  gui.println("Es ist ein Feheler aufgetreten");
-}
 
-void unknown_user_entry() {
-  logging("unknown_user_entry");
-  gui.print("Unknown token"); gui.println(curToken); gui.println("Please register!");
-  delay(1000);
-}
-
-void coffee_ready_entry() {
-  logging("coffee_ready_entry");
+void brewing_entry() {
+  logging(__FUNCTION__);
   brewCoffee(curCoffee);
   gui.println("Wenn die Kaffeemaschine einen Fehler meldet, drücken Sie bitte 'Cancel'");
 }

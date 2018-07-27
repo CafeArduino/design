@@ -10,9 +10,6 @@
 
 #define MASTER_TOKEN 1505981968
 
-uint16_t user1 = 0;
-uint16_t user2 = 0;
-
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 
 
@@ -69,28 +66,21 @@ tokenId_t checkForCard() {
 
   if ( ! mfrc522.PICC_ReadCardSerial())
     return NO_CARD;
-
+  // card present below here 
+  
   code = hash_uuid();
 
   if (code == MASTER_TOKEN) {
     manageTokens();
-    return NO_CARD;
   }
 
-
-  // found a token
+  // found a user token
   logging(String("checkForCard: token ") + code );
   //logging(String("checkForCard: index ") + tokenPosition(code) );
   //logging(String("CheckForCard "));
   //Serial.println(code, HEX);
 
-  // now, check if token is known already
-  if (tokenPosition(code) != NOT_FOUND) {
-    logging("checkForCard: valid token ");
-    return (tokenId_t) code; 
-  }
-  
-  return NO_CARD;
+  return code;
 }
 
 
