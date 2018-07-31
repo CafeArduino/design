@@ -115,7 +115,6 @@ void logging(String s);
 class Screen {
   public:
     void print(String s);
-    void clear();
     /* ... */
   private:
 };
@@ -129,7 +128,6 @@ Screen gui;
   auto Serial1 = Serial;
 #endif
 
-void run_cm();
 void setup() {
   // setup serial ports
   Serial.begin(9600);
@@ -161,6 +159,7 @@ void setup() {
 void loop() {
   //logging("loop");
   
+  run_gui();
   run_cm();
 
   delay(250);

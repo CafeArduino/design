@@ -117,8 +117,7 @@ void run_cm() {
 
 void ready_entry() {
   logging(__FUNCTION__);
-  gui.clear();
-  gui.print(String(" WAITING  ") + "FOR TOKEN"); 
+  gui.delayedPrint(String(" WAITING  ") + "FOR TOKEN"); 
 }
 
 
@@ -142,7 +141,6 @@ void ready_loop() {
 void unknown_user() {
   logging(__FUNCTION__);
   gui.print(String("BAD TOKEN ") + curToken);
-  delay(1000);
 }
 
 void authenticated_entry() {
@@ -152,7 +150,6 @@ void authenticated_entry() {
 
 void authenticated_exit() {
   logging(__FUNCTION__);
-  gui.clear(); //not necessary
 }
 
 
@@ -165,7 +162,6 @@ void brewing_entry() {
 void on_no_coffee_got() {
   logging(__FUNCTION__);
   gui.print(String(" CHARGING  NOTHING  "));
-  delay(1000);   // just to keep the message visible.
 }
 
 void on_coffee_got() {
@@ -186,7 +182,6 @@ void on_coffee_got() {
 
   gui.print(String(" CHARGING  ") + cost);
   incrementCoffeeCount(curToken, cost);
-  delay(1000);   // just to keep the message visible.
   eepromStatus();
 }
 

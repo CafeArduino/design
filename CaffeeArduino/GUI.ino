@@ -27,7 +27,32 @@
 Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 
 
+// finite state machien for gui 
+State state_cleared("cleared", &cleared_entry, NULL, NULL);            // LED display is cleared
+State state_delaying("delaying", NULL, NULL, NULL);                    // delaying display of message
+State state_displaying("displaying", &displaying_entry, NULL, NULL);   // display message
 
+Fsm fsm_gui(&state_cleared);
+#define DISPLAY_SIZE 20
+char __display_msg[DISPLAY_SIZE+1] = "";
+
+#define DISPLAY_EVENT 100 
+#define DELAY_EVENT 200
+#define DISPLAY_TIME 3000
+#define DELAY_TIME 3000
+
+void run_gui() {
+//  logging(__FUNCTION__);
+  fsm_gui.run_machine();
+}
+
+void cleared_entry() {
+  screen_clear();
+}
+  
+void displaying_entry() {
+    screen_string_println(__display_msg);
+}
 
 void setup_gui() {
   tft.reset();
@@ -37,7 +62,51 @@ void setup_gui() {
   tft.begin(identifier);
   screen_clear();
   screen_string_println("\n  Cafe Arduino!\n     Booting!");
+
+  // state machine
+/*
+digraph fsm_gui {
+
+  rankdir = LR;
+  cleared;
+  delaying;
+  displaying;
+
+ 
+  cleared -> displaying [label = "DISPLAY", color = "black"]
+  cleared -> delaying [label = "DELAY", color = "black"]
+
+  displaying -> displaying [label = "DISPLAY", color = "black"]
+  displaying -> cleared  [label = "3 sec", color = "blue"];
+
+  delaying -> displaying [label = "3 sec", color = "blue"];
 }
+*/
+  // from cleared
+  fsm_gui.add_transition(&state_cleared, &state_displaying, DISPLAY_EVENT, NULL);
+  fsm_gui.add_transition(&state_cleared, &state_delaying, DELAY_EVENT, NULL);
+  // from displaying  
+  fsm_gui.add_timed_transition(&state_displaying, &state_cleared, DISPLAY_TIME, NULL);
+  fsm_gui.add_transition(&state_displaying, &state_displaying, DISPLAY_EVENT, NULL);
+  // from delaying
+  fsm_gui.add_timed_transition(&state_delaying, &state_displaying, DELAY_TIME, NULL);
+}
+
+
+// class Screen 
+
+void Screen::print(String s){ 
+//  screen_string_println(s);
+  snprintf(__display_msg, DISPLAY_SIZE+1, "%s", s.c_str());
+  fsm_gui.trigger(DISPLAY_EVENT);
+}
+
+void Screen::delayedPrint(String s){ 
+  snprintf(__display_msg, DISPLAY_SIZE+1, "%s", s.c_str());
+  //fsm_gui.trigger(DELAY_EVENT);
+  fsm_gui.trigger(DISPLAY_EVENT);
+}
+
 
 /*void screen_string_print(String s) {
   tft.print(s);
@@ -72,16 +141,6 @@ void screen_clear(){
 }
 /////////////
 
-
-// class Screen 
-
-void Screen::print(String s){
-  screen_string_println(s);
-}
-
-void Screen::clear(){
-  screen_clear();  
-}
 
 
 
