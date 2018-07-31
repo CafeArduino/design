@@ -49,10 +49,7 @@ void init_cm() {
 /*
 This is the current state machine. Visualisation, e.g. on https://dreampuf.github.io/GraphvizOnline/
 
-digraph finite_state_machine {
-
-  node [shape = doublecircle] fail;
-  node [shape = circle];
+digraph fsm_cm {
 
   rankdir = LR;
 
@@ -60,15 +57,17 @@ digraph finite_state_machine {
   auth;
   brewing;
 
-  ready -> auth [label = "AI", color = "red"];
-  ready -> ready  [label = "UU", color = "red"];
+ 
+  ready -> auth [label = "AI", color = "black"];
+  ready -> ready  [label = "UU", color = "black"];
+  ready -> ready  [label = "10 sec", color = "blue"];
 
-  auth -> ready [label = "CAB", color = "red"];
-  auth -> brewing [label = "COB", color = "red"];
-  auth -> ready [label = "time", color = "blue"];
+  auth -> ready [label = "CAB", color = "black"];
+  auth -> brewing [label = "COB", color = "black"];
+  auth -> ready [label = "5 sec", color = "blue"];
 
-  brewing -> ready [label = "time", color = "blue"];
-  brewing -> ready [label = "CAB", color = "red"];
+  brewing -> ready [label = "20 sec", color = "red"];
+  brewing -> ready [label = "CAB", color = "black"];
 
 }
  */
@@ -76,6 +75,7 @@ digraph finite_state_machine {
   //von ready
   fsm_cm.add_transition(&state_ready, &state_authenticated, AI_EVENT, NULL);
   fsm_cm.add_transition(&state_ready, &state_ready, UU_EVENT, &unknown_user);
+  fsm_cm.add_timed_transition(&state_ready, &state_ready, FAIL_TIME, NULL);  // only to redisplay token msg
 
   //von authenticated
   fsm_cm.add_transition(&state_authenticated, &state_ready, CAB_EVENT, NULL);

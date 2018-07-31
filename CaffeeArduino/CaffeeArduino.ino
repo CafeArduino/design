@@ -115,6 +115,7 @@ void logging(String s);
 class Screen {
   public:
     void print(String s);
+    void delayedPrint(String s);
     /* ... */
   private:
 };
