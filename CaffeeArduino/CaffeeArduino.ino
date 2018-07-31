@@ -132,6 +132,7 @@ Screen gui;
   auto Serial1 = Serial;
 #endif
 
+void run_cm();
 void setup() {
   // setup serial ports
   Serial.begin(9600);
@@ -158,4 +159,17 @@ void setup() {
   // report EEPROM contents
   eepromStatus();
 }
+
+
+void loop() {
+  //logging("loop");
+  
+  run_cm();
+
+  delay(250);
+
+  // logging(String("curToken: ") + curToken);
+  // logging(String("curButton") + curCoffee);
+}
+
 

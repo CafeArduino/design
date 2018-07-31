@@ -41,18 +41,6 @@ void setup_statemachine() {
 
 
 
-void loop() {
-  //logging("loop");
-  
-  run_cm();
-
-  delay(250);
-
-  // logging(String("curToken: ") + curToken);
-  // logging(String("curButton") + curCoffee);
-}
-
-
 //---------------------------------------------------------------------------------------------------------------
 void init_cm() {
 
