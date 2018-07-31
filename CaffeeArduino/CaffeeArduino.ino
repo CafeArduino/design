@@ -115,9 +115,6 @@ void logging(String s);
 class Screen {
   public:
     void print(String s);
-    void print(uint32_t);
-    void println(String s);
-    void println(uint32_t);
     void clear();
     /* ... */
   private:

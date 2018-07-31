@@ -38,7 +38,8 @@ void setup_gui() {
   screen_clear();
   screen_string_println("\n  Cafe Arduino!\n     Booting!");
 }
-void screen_string_print(String s) {
+
+/*void screen_string_print(String s) {
   tft.print(s);
 }
 
@@ -49,11 +50,11 @@ void screen_hex_print(uint32_t h){
 void screen_integer_print(uint32_t h){
   tft.print(h);
 };
-
+*/
 void screen_string_println(String s) {
    tft.println(s);  
 }
-
+/*
 void screen_hex_println(uint32_t h){
   tft.println(h, HEX);
 };
@@ -61,7 +62,7 @@ void screen_hex_println(uint32_t h){
 void screen_integer_println(uint32_t h){
   tft.println(h);
 };
-
+*/
 void screen_clear(){
   tft.fillScreen(LCD_BLACK);
   tft.setRotation(1);
@@ -74,19 +75,8 @@ void screen_clear(){
 
 // class Screen 
 
- void Screen::print(String s) {
-  screen_string_print(s);
-}
-
-void Screen::print(uint32_t i){
-  screen_integer_print(i);
-}
-
-void Screen::println(String s){
+void Screen::print(String s){
   screen_string_println(s);
-}
-void Screen::println(uint32_t i){
-  screen_integer_println(i);
 }
 
 void Screen::clear(){
