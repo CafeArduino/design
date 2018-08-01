@@ -7,6 +7,15 @@
 /*                                                            */
 /**************************************************************/
 
+// See command list at https://github.com/PromyLOPh/juramote
+// In particular: 
+//    AN:03     test display (2 lines, each 10 chars wide) 
+//    DA:msg    print msg permanetly on display
+//    DR:       reset display
+//    DT:msg    change default message to msg (does not seem to work) 
+//    PM:       play music (does not work)
+
+
 struct coffee_desc_s {
   const coffee_t button;
   const char cmd[8];    // brew command code, e.g "FA:04\n\r"
@@ -129,3 +138,11 @@ int brewCoffee(coffee_t type){
   toCoffeeMachine(cmd);
   
 }
+
+void displayPrint(String msg) {
+    toCoffeeMachine("DA:" + msg + "\n\r");   
+  }
+
+ void displayClear() {
+  toCoffeeMachine("DR:\n\r");   
+ }

@@ -48,10 +48,12 @@ void run_gui() {
 
 void cleared_entry() {
   screen_clear();
+  displayClear();
 }
   
 void displaying_entry() {
     screen_string_println(__display_msg);
+    displayPrint(__display_msg);
 }
 
 void setup_gui() {
