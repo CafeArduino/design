@@ -7,18 +7,15 @@ tokenId_t curToken;
 coffee_t curCoffee;
 
 //Times
-#define CANCEL_AUTHENTICATED_TIME 5000
 #define COFFEE_READY_WAIT_TIME 20000
 #define AUTHENTICATED_TIME 5000
 #define FAIL_TIME 10000
-#define UU_TIME 10000
 
 //Events - do not use 0!
 #define AI_EVENT 2    // authenticated input
 #define COB_EVENT 3   // coffee button
 #define CAB_EVENT 4   // cancel button
 #define UU_EVENT 5    // unknown user
-// #define FAIL_EVENT 10  // general failure catch all
 
 State state_ready(String("ready"), &ready_entry, &ready_loop, NULL);
 State state_authenticated(String("authenticated"), &authenticated_entry, NULL, &authenticated_exit);
