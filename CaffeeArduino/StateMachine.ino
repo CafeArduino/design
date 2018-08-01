@@ -114,7 +114,7 @@ void run_cm() {
 
 void ready_entry() {
   logging(__FUNCTION__);
-  gui.delayedPrint(String(" WAITING  ") + "FOR TOKEN"); 
+  gui.delayedPrint(String(" WAITING  FOR TOKEN")); 
 }
 
 
